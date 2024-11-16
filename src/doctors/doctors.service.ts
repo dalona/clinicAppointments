@@ -1,45 +1,35 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateDoctorDto} from '../doctors/dto/create-doctor.dto';
-import { UpdateDoctorDto } from './dto/update-doctor.dto';
-
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Doctor } from './entities/doctor.entity';
+import { CreateDoctorDto } from './dto/create-doctor.dto';
 
 @Injectable()
-export class DoctorService {
-  private doctors = [];
+export class DoctorsService {
+  constructor(
+    @InjectRepository(Doctor)
+    private readonly doctorRepository: Repository<Doctor>,
+  ) {}
 
-  createDoctor(createDoctorDto: CreateDoctorDto) {
-    const newDoctor = { id: Date.now().toString(), ...createDoctorDto };
-    this.doctors.push(newDoctor);
-    return newDoctor;
+  async create(createDoctorDto: CreateDoctorDto): Promise<Doctor> {
+    const doctor = this.doctorRepository.create(createDoctorDto); // Creates a instance
+    return await this.doctorRepository.save(doctor); // S<ves in DB
   }
 
-  findAll() {
-    return this.doctors;
+  async findAll(): Promise<Doctor[]> {
+    return await this.doctorRepository.find();
   }
 
-  findOne(id: string) {
-    const doctor = this.doctors.find((doc) => doc.id === id);
-    if (!doctor) {
-      throw new NotFoundException('Doctor not found');
-    }
-    return doctor;
+  async findOne(id: string): Promise<Doctor> {
+    return await this.doctorRepository.findOne({ where: { id } });
   }
 
-  updateDoctor(id: string, updateDoctorDto: UpdateDoctorDto) {
-    const doctorIndex = this.doctors.findIndex((doc) => doc.id === id);
-    if (doctorIndex === -1) {
-      throw new NotFoundException('Doctor not found');
-    }
-    this.doctors[doctorIndex] = { ...this.doctors[doctorIndex], ...updateDoctorDto };
-    return this.doctors[doctorIndex];
+  async update(id: string, updateDoctorDto: Partial<CreateDoctorDto>): Promise<Doctor> {
+    await this.doctorRepository.update(id, updateDoctorDto);
+    return this.findOne(id);
   }
 
-  remove(id: string) {
-    const doctorIndex = this.doctors.findIndex((doc) => doc.id === id);
-    if (doctorIndex === -1) {
-      throw new NotFoundException('Doctor not found');
-    }
-    this.doctors.splice(doctorIndex, 1);
-    return { message: 'Doctor removed' };
+  async remove(id: string): Promise<void> {
+    await this.doctorRepository.delete(id);
   }
 }

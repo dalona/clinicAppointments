@@ -1,12 +1,11 @@
-// src/patients/entities/patient.entity.ts
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { User } from "src/auth/interfaces/user.interface"; 
-import { Role } from "src/common/enums/role.enum";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Appointment } from 'src/appointments/entities/appointment.entity';
+import { Role } from 'src/common/enums/role.enum';
 
-@Entity()
-export class Patient implements User {  
-  @PrimaryGeneratedColumn()
-  id: number;
+@Entity('patients')
+export class Patient {
+  @PrimaryGeneratedColumn('uuid') // Genera un UUID automáticamente
+  id: string;
 
   @Column({ unique: true })
   email: string;
@@ -14,6 +13,9 @@ export class Patient implements User {
   @Column()
   password: string;
 
-  @Column()
-  role: Role; 
+  @Column({ type: 'enum', enum: Role })
+  role: Role;
+
+  @OneToMany(() => Appointment, (appointment) => appointment.patient)
+  appointments: Appointment[];
 }

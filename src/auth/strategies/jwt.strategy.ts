@@ -29,7 +29,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
         let user;
 
-        // Según el rol en el payload, buscar en la entidad correspondiente
+        // Depending on the role in the payload, search the corresponding entity
         switch (role) {
             // case 'admin':
             //     user = await this.adminRepository.findOne({ where: { email } });
@@ -37,14 +37,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             case 'patient':
                 user = await this.patientRepository.findOne({
                     where: {
-                        email: email, // Asegúrate de que 'email' es el campo correcto en tu entidad
+                        email: email, 
                     },
                 });
                 break;
             case 'doctor':
                 user = await this.doctorRepository.findOne({
                     where: {
-                        email: email, // Asegúrate de que 'email' es el campo correcto en tu entidad
+                        email: email, 
                     },
                 });
                 break;

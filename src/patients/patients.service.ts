@@ -1,44 +1,31 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreatePatientDto } from './dto/create-patient.dto';
-import { UpdatePatientDto } from './dto/update-patient.dto';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Patient } from './entities/patient.entity';
 
 @Injectable()
-export class PatientService {
-  private patients = [];
+export class PatientsService {
+  createPatient: any;
+  updatePatient: any;
+  constructor(
+    @InjectRepository(Patient) 
+    private readonly patientRepository: Repository<Patient>,
+  ) {}
 
-  createPatient(createPatientDto: CreatePatientDto) {
-    const newPatient = { id: Date.now().toString(), ...createPatientDto };
-    this.patients.push(newPatient);
-    return newPatient;
+  async create(patient: Partial<Patient>): Promise<Patient> {
+    const newPatient = this.patientRepository.create(patient);
+    return this.patientRepository.save(newPatient);
   }
 
-  findAll() {
-    return this.patients;
+  async findAll(): Promise<Patient[]> {
+    return this.patientRepository.find();
   }
 
-  findOne(id: string) {
-    const patient = this.patients.find((pat) => pat.id === id);
-    if (!patient) {
-      throw new NotFoundException('Patient not found');
-    }
-    return patient;
+  async findOne(id: string): Promise<Patient> {
+    return this.patientRepository.findOne({ where: { id } });
   }
 
-  updatePatient(id: string, updatePatientDto: UpdatePatientDto) {
-    const patientIndex = this.patients.findIndex((pat) => pat.id === id);
-    if (patientIndex === -1) {
-      throw new NotFoundException('Patient not found');
-    }
-    this.patients[patientIndex] = { ...this.patients[patientIndex], ...updatePatientDto };
-    return this.patients[patientIndex];
-  }
-
-  remove(id: string) {
-    const patientIndex = this.patients.findIndex((pat) => pat.id === id);
-    if (patientIndex === -1) {
-      throw new NotFoundException('Patient not found');
-    }
-    this.patients.splice(patientIndex, 1);
-    return { message: 'Patient removed' };
+  async remove(id: string): Promise<void> {
+    await this.patientRepository.delete(id);
   }
 }

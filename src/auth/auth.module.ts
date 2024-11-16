@@ -10,8 +10,8 @@ import { Patient } from 'src/patients/entities/patient.entity';
 import { Doctor } from 'src/doctors/entities/doctor.entity';
 import { PatientsModule } from 'src/patients/patients.module';
 import { DoctorsModule } from 'src/doctors/doctors.module';
-import { PatientService } from 'src/patients/patients.service';
-import { DoctorService } from 'src/doctors/doctors.service';
+import { PatientsService } from 'src/patients/patients.service';
+import { DoctorsService } from 'src/doctors/doctors.service';
 
 @Module({
     imports:[ConfigModule ,TypeOrmModule.forFeature([Patient,Doctor]), 
@@ -29,7 +29,7 @@ import { DoctorService } from 'src/doctors/doctors.service';
       
     ],
     controllers: [AuthController],
-    providers: [AuthService, PatientService, DoctorService, JwtStrategy],
+    providers: [AuthService, PatientsService, DoctorsService, JwtStrategy],
     exports:[TypeOrmModule, JwtStrategy, PassportModule, JwtModule]
   })
   export class AuthModule {}
